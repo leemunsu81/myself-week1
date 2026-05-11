@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#ffd43b"/>
+  <circle cx="256" cy="256" r="210" fill="#0a1018"/>
+  <rect x="114" y="170" width="284" height="174" rx="28" fill="#111827"/>
+  <rect x="144" y="204" width="224" height="68" rx="12" fill="#05070b" stroke="#fef3c7" stroke-width="5"/>
+  <path d="M185 252h42l16-36h20l-40 78h-21l14-28h-31v-14Zm92 42h-21l40-78h21l40 78h-22l-7-16h-43l-8 16Zm16-34h28l-14-31-14 31Z" fill="#ffd43b"/>
+  <rect x="158" y="292" width="54" height="28" rx="7" fill="#e5e7eb"/>
+  <rect x="229" y="292" width="54" height="28" rx="7" fill="#e5e7eb"/>
+  <rect x="300" y="292" width="54" height="28" rx="7" fill="#12a66a"/>
+  <text x="256" y="157" text-anchor="middle" font-family="Arial, sans-serif" font-size="38" font-weight="900" fill="#ffd43b">TAXI</text>
+</svg>

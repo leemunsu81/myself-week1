@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>실시간 택시 미터기</title>
   <meta name="description" content="브라우저 위치 정보를 사용해 거리, 시간, 저속 주행, 심야 할증을 반영하는 실시간 택시 미터기입니다.">
+  <meta name="theme-color" content="#ffd43b">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="택시 미터기">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/taxi-meter-icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/taxi-meter-icon.svg">
   <style>
     *, *::before, *::after { box-sizing: border-box; }
 
@@ -269,6 +277,12 @@
       padding: 15px;
     }
 
+    .app-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
     .field { display: grid; gap: 7px; }
 
     label {
@@ -389,6 +403,7 @@
     @media (max-width: 620px) {
       .app { width: min(100% - 20px, 1220px); }
       .meter-grid, .controls, .split { grid-template-columns: 1fr; }
+      .app-actions { grid-template-columns: 1fr; }
       .meter-head { align-items: flex-start; flex-direction: column; }
       .fare { min-height: 84px; padding-inline: 10px; }
       .gps-line { grid-template-columns: 84px 1fr; }
@@ -448,7 +463,11 @@
           <h2>위치 추적</h2>
           <canvas class="route" id="routeCanvas" width="780" height="460" aria-label="주행 경로"></canvas>
           <div class="gps">
-            <button class="btn btn-secondary" id="gpsBtn" type="button">GPS 권한 요청</button>
+            <div class="app-actions">
+              <button class="btn btn-secondary" id="gpsBtn" type="button">GPS 권한 요청</button>
+              <button class="btn btn-primary" id="installBtn" type="button" hidden>앱 설치</button>
+            </div>
+            <div class="gps-line"><span>앱 상태</span><strong id="appStatus">브라우저 실행 중</strong></div>
             <div class="gps-line"><span>상태</span><strong id="gpsStatus">위치 권한 필요</strong></div>
             <div class="gps-line"><span>현재 위치</span><strong id="positionView">-</strong></div>
             <div class="gps-line"><span>정확도</span><strong id="accuracyView">-</strong></div>
@@ -558,11 +577,14 @@
       receipt: $('receipt'),
       routeCanvas: $('routeCanvas'),
       gpsBtn: $('gpsBtn'),
+      installBtn: $('installBtn'),
       startBtn: $('startBtn'),
       pauseBtn: $('pauseBtn'),
       finishBtn: $('finishBtn'),
       resetBtn: $('resetBtn')
     };
+
+    let deferredInstallPrompt = null;
 
     function won(value) {
       return Math.round(value / 10) * 10;
@@ -861,6 +883,14 @@
     }
 
     els.gpsBtn.addEventListener('click', startGps);
+    els.installBtn.addEventListener('click', async () => {
+      if (!deferredInstallPrompt) return;
+      deferredInstallPrompt.prompt();
+      await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+      els.installBtn.hidden = true;
+      $('appStatus').textContent = '설치 처리 완료';
+    });
     els.startBtn.addEventListener('click', startTrip);
     els.pauseBtn.addEventListener('click', pauseTrip);
     els.finishBtn.addEventListener('click', finishTrip);
@@ -869,6 +899,39 @@
     els.outsideCity.addEventListener('change', render);
     els.chargeNoGps.addEventListener('change', render);
     els.extras.addEventListener('input', render);
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault();
+      deferredInstallPrompt = event;
+      els.installBtn.hidden = false;
+      $('appStatus').textContent = '설치 가능';
+    });
+
+    window.addEventListener('appinstalled', () => {
+      deferredInstallPrompt = null;
+      els.installBtn.hidden = true;
+      $('appStatus').textContent = '설치됨';
+    });
+
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+      $('appStatus').textContent = '앱으로 실행 중';
+    }
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(() => {
+            if ($('appStatus').textContent === '브라우저 실행 중') {
+              $('appStatus').textContent = '오프라인 준비 완료';
+            }
+          })
+          .catch(() => {
+            $('appStatus').textContent = '오프라인 캐시 등록 실패';
+          });
+      });
+    } else {
+      $('appStatus').textContent = '앱 설치 미지원 브라우저';
+    }
 
     render();
   </script>
