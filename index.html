@@ -3,170 +3,167 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>서울 택시 미터기</title>
-  <meta name="description" content="서울 중형택시 요금 기준으로 거리, 시간, 심야, 시계외 할증을 반영해 예상 택시 요금을 계산하는 웹 미터기입니다.">
+  <title>실시간 택시 미터기</title>
+  <meta name="description" content="브라우저 위치 정보를 사용해 거리, 시간, 저속 주행, 심야 할증을 반영하는 실시간 택시 미터기입니다.">
   <style>
     *, *::before, *::after { box-sizing: border-box; }
 
     :root {
-      --bg: #f4f6f8;
+      --bg: #eef1f5;
+      --ink: #10141d;
+      --muted: #657181;
       --panel: #ffffff;
-      --panel-strong: #111827;
-      --line: #d9dee7;
-      --line-strong: #a8b1c2;
-      --text: #121826;
-      --muted: #5f6b7a;
-      --subtle: #eef2f7;
+      --line: #d6dce6;
+      --dark: #0a1018;
+      --screen: #05070b;
       --yellow: #ffd43b;
-      --yellow-dark: #d99b00;
-      --green: #14a46c;
-      --red: #e5484d;
-      --blue: #2563eb;
-      --shadow: 0 18px 44px rgba(18, 24, 38, 0.12);
+      --green: #12a66a;
+      --red: #e04343;
+      --blue: #2264d1;
+      --shadow: 0 18px 46px rgba(16,20,29,.12);
       font-family: "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
     }
 
     body {
       margin: 0;
       min-height: 100vh;
+      color: var(--ink);
       background:
-        linear-gradient(180deg, rgba(255,212,59,0.22), transparent 280px),
-        repeating-linear-gradient(90deg, rgba(17,24,39,0.05) 0 1px, transparent 1px 64px),
+        linear-gradient(180deg, rgba(255,212,59,.22), transparent 260px),
+        repeating-linear-gradient(90deg, rgba(16,20,29,.045) 0 1px, transparent 1px 72px),
         var(--bg);
-      color: var(--text);
     }
 
     button, input, select { font: inherit; }
 
     .app {
-      width: min(1180px, calc(100% - 32px));
+      width: min(1220px, calc(100% - 28px));
       margin: 0 auto;
-      padding: 28px 0 36px;
+      padding: 22px 0 34px;
     }
 
     .topbar {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 22px;
+      gap: 18px;
+      margin-bottom: 18px;
     }
 
     .brand {
       display: flex;
-      align-items: center;
       gap: 12px;
-      min-width: 0;
+      align-items: center;
     }
 
     .taxi-sign {
       display: grid;
       place-items: center;
-      width: 56px;
+      width: 58px;
       height: 42px;
-      border: 3px solid #111827;
+      border: 3px solid var(--dark);
       border-radius: 8px 8px 4px 4px;
       background: var(--yellow);
-      color: #111827;
+      color: var(--dark);
       font-weight: 950;
-      letter-spacing: 0;
-      box-shadow: inset 0 -5px 0 rgba(0,0,0,0.12);
+      box-shadow: inset 0 -5px 0 rgba(0,0,0,.13);
       flex: 0 0 auto;
     }
 
     h1 {
       margin: 0;
-      font-size: clamp(25px, 4vw, 42px);
+      font-size: clamp(26px, 4vw, 42px);
+      line-height: 1.1;
       letter-spacing: 0;
-      line-height: 1.12;
     }
 
-    .subtitle {
+    .subtitle, .source {
       margin: 5px 0 0;
       color: var(--muted);
-      font-size: 14px;
+      font-size: 13px;
       line-height: 1.5;
     }
 
     .source {
-      color: var(--muted);
-      font-size: 13px;
       text-align: right;
-      line-height: 1.5;
+      max-width: 360px;
     }
 
     .source a {
       color: var(--blue);
+      font-weight: 800;
       text-decoration: none;
-      font-weight: 700;
     }
 
     .layout {
       display: grid;
-      grid-template-columns: minmax(0, 1.1fr) 390px;
-      gap: 18px;
+      grid-template-columns: minmax(0, 1fr) 390px;
+      gap: 16px;
       align-items: start;
     }
 
     .meter {
       overflow: hidden;
-      border: 1px solid #0f172a;
+      border: 1px solid #080c12;
       border-radius: 8px;
-      background: #101820;
+      background: var(--dark);
       box-shadow: var(--shadow);
     }
 
     .meter-head {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      gap: 14px;
-      padding: 16px 18px;
-      border-bottom: 1px solid rgba(255,255,255,0.12);
-      color: #f8fafc;
+      align-items: center;
+      gap: 12px;
+      padding: 15px 18px;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+      color: #eef2f7;
     }
 
     .status {
       display: flex;
       align-items: center;
       gap: 9px;
-      font-size: 14px;
       color: #cbd5e1;
+      font-size: 14px;
     }
 
-    .status-dot {
-      width: 10px;
-      height: 10px;
+    .dot {
+      width: 11px;
+      height: 11px;
       border-radius: 50%;
-      background: var(--green);
-      box-shadow: 0 0 0 5px rgba(20,164,108,0.16);
+      background: #8a93a2;
+      box-shadow: 0 0 0 5px rgba(138,147,162,.16);
     }
 
-    .mode-pill {
+    .dot.active {
+      background: var(--green);
+      box-shadow: 0 0 0 5px rgba(18,166,106,.18);
+    }
+
+    .badge {
       padding: 7px 10px;
-      border: 1px solid rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,.18);
       border-radius: 999px;
       color: #e5e7eb;
       font-size: 13px;
+      font-weight: 800;
       white-space: nowrap;
     }
 
     .display {
-      padding: clamp(20px, 5vw, 38px);
-      background:
-        linear-gradient(180deg, rgba(255,255,255,0.07), transparent),
-        #111827;
+      padding: clamp(18px, 4vw, 34px);
+      background: linear-gradient(180deg, rgba(255,255,255,.07), transparent), #111827;
     }
 
     .fare-label {
       display: flex;
-      align-items: center;
       justify-content: space-between;
       gap: 12px;
-      color: #9ca3af;
-      font-size: 14px;
-      font-weight: 700;
       margin-bottom: 8px;
+      color: #a5afbd;
+      font-size: 14px;
+      font-weight: 800;
     }
 
     .fare {
@@ -174,128 +171,120 @@
       align-items: baseline;
       justify-content: flex-end;
       gap: 10px;
-      min-height: 92px;
+      min-height: 104px;
       padding: 12px 16px;
-      border: 1px solid rgba(255,212,59,0.35);
+      border: 1px solid rgba(255,212,59,.38);
       border-radius: 8px;
-      background: #05070a;
+      background: var(--screen);
       color: var(--yellow);
       font-variant-numeric: tabular-nums;
-      box-shadow: inset 0 0 28px rgba(255,212,59,0.09);
+      box-shadow: inset 0 0 30px rgba(255,212,59,.1);
     }
 
     .fare strong {
-      font-size: clamp(46px, 10vw, 82px);
+      font-size: clamp(50px, 10vw, 92px);
       line-height: 1;
       letter-spacing: 0;
     }
 
     .fare span {
       color: #fef3c7;
-      font-size: clamp(18px, 3vw, 26px);
-      font-weight: 850;
+      font-size: clamp(20px, 3vw, 30px);
+      font-weight: 900;
     }
 
-    .trip-grid {
+    .meter-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 9px;
       margin-top: 14px;
     }
 
-    .trip-stat {
+    .meter-stat {
       min-width: 0;
-      padding: 13px;
-      border: 1px solid rgba(255,255,255,0.12);
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,.12);
       border-radius: 8px;
-      background: rgba(255,255,255,0.06);
-      color: #e5e7eb;
+      background: rgba(255,255,255,.06);
+      color: #f3f4f6;
     }
 
-    .trip-stat span {
+    .meter-stat span {
       display: block;
-      color: #9ca3af;
-      font-size: 12px;
       margin-bottom: 5px;
+      color: #a5afbd;
+      font-size: 12px;
     }
 
-    .trip-stat strong {
-      font-size: clamp(18px, 3vw, 26px);
+    .meter-stat strong {
+      font-size: clamp(17px, 2.4vw, 25px);
       font-variant-numeric: tabular-nums;
     }
 
-    .actions {
+    .controls {
       display: grid;
-      grid-template-columns: 1.4fr 1fr 1fr;
+      grid-template-columns: 1.2fr 1fr 1fr 1fr;
       gap: 10px;
       padding: 16px 18px 18px;
+      border-top: 1px solid rgba(255,255,255,.1);
       background: #0b1118;
-      border-top: 1px solid rgba(255,255,255,0.1);
     }
 
     .btn {
-      min-height: 48px;
+      min-height: 50px;
       border: 1px solid transparent;
       border-radius: 8px;
       cursor: pointer;
-      font-weight: 850;
-      color: #111827;
-      transition: transform 0.15s ease, filter 0.15s ease, background 0.15s ease;
+      color: #10141d;
+      font-weight: 900;
+      transition: transform .15s ease, filter .15s ease;
     }
 
-    .btn:hover { transform: translateY(-1px); filter: brightness(1.02); }
-    .btn:active { transform: translateY(0); }
-
+    .btn:hover { transform: translateY(-1px); filter: brightness(1.03); }
+    .btn:disabled { cursor: not-allowed; opacity: .52; transform: none; }
     .btn-primary { background: var(--yellow); }
     .btn-secondary { background: #e5e7eb; }
+    .btn-green { background: #dff7eb; color: #05603a; }
     .btn-danger { background: #fee2e2; color: #991b1b; }
 
     .panel {
       border: 1px solid var(--line);
       border-radius: 8px;
       background: var(--panel);
-      box-shadow: 0 8px 24px rgba(18, 24, 38, 0.08);
+      box-shadow: 0 8px 24px rgba(16,20,29,.08);
     }
 
-    .panel + .panel { margin-top: 14px; }
+    .panel + .panel { margin-top: 13px; }
 
     .panel h2 {
       margin: 0;
-      padding: 16px 16px 0;
+      padding: 15px 15px 0;
       font-size: 18px;
       letter-spacing: 0;
     }
 
-    .form {
+    .form, .rows, .gps {
       display: grid;
-      gap: 14px;
-      padding: 16px;
+      gap: 10px;
+      padding: 15px;
     }
 
-    .field {
-      display: grid;
-      gap: 7px;
-    }
+    .field { display: grid; gap: 7px; }
 
     label {
       color: #303947;
       font-size: 13px;
-      font-weight: 800;
+      font-weight: 850;
     }
 
     input[type="number"], select {
       width: 100%;
-      height: 44px;
-      border: 1px solid var(--line-strong);
+      height: 42px;
+      border: 1px solid #aeb8c7;
       border-radius: 8px;
       background: #fff;
-      color: var(--text);
-      padding: 0 12px;
-    }
-
-    input[type="range"] {
-      width: 100%;
-      accent-color: #111827;
+      color: var(--ink);
+      padding: 0 11px;
     }
 
     .split {
@@ -304,54 +293,21 @@
       gap: 10px;
     }
 
-    .segmented {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-      padding: 4px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--subtle);
-    }
-
-    .segmented button {
-      height: 38px;
-      border: 0;
-      border-radius: 6px;
-      background: transparent;
-      color: var(--muted);
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 850;
-    }
-
-    .segmented button.active {
-      background: #111827;
-      color: #fff;
-      box-shadow: 0 5px 14px rgba(17,24,39,0.18);
-    }
-
     .toggle {
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
       gap: 12px;
-      padding: 12px;
+      padding: 11px;
       border: 1px solid var(--line);
       border-radius: 8px;
       background: #fbfcfe;
     }
 
     .toggle input {
-      width: 46px;
+      width: 44px;
       height: 24px;
-      accent-color: #111827;
-    }
-
-    .breakdown {
-      display: grid;
-      gap: 9px;
-      padding: 16px;
+      accent-color: #10141d;
     }
 
     .row {
@@ -364,58 +320,78 @@
     }
 
     .row strong {
-      color: var(--text);
+      color: var(--ink);
       white-space: nowrap;
       font-variant-numeric: tabular-nums;
     }
 
     .row.total {
-      margin-top: 8px;
-      padding-top: 12px;
+      margin-top: 6px;
+      padding-top: 11px;
       border-top: 1px solid var(--line);
-      color: var(--text);
+      color: var(--ink);
+      font-weight: 950;
       font-size: 16px;
-      font-weight: 900;
+    }
+
+    .gps-line {
+      display: grid;
+      grid-template-columns: 94px 1fr;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+      min-width: 0;
+    }
+
+    .gps-line strong {
+      color: var(--ink);
+      font-weight: 850;
+      word-break: break-word;
+    }
+
+    .route {
+      height: 230px;
+      width: 100%;
+      display: block;
+      background:
+        linear-gradient(rgba(255,255,255,.82), rgba(255,255,255,.82)),
+        repeating-linear-gradient(0deg, transparent 0 31px, rgba(16,20,29,.08) 31px 32px),
+        repeating-linear-gradient(90deg, transparent 0 31px, rgba(16,20,29,.08) 31px 32px);
+      border-bottom: 1px solid var(--line);
     }
 
     .note {
       margin: 0;
-      padding: 0 16px 16px;
+      padding: 0 15px 15px;
       color: var(--muted);
       font-size: 12px;
-      line-height: 1.6;
+      line-height: 1.55;
     }
 
-    .quick {
+    .receipt {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      padding: 16px;
+      gap: 7px;
+      max-height: 170px;
+      overflow: auto;
+      padding: 0 15px 15px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
     }
 
-    .quick button {
-      min-height: 54px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fff;
-      cursor: pointer;
-      font-weight: 850;
-      color: #202a38;
-    }
-
-    .quick button:hover { border-color: #111827; }
-
-    @media (max-width: 900px) {
+    @media (max-width: 940px) {
       .layout { grid-template-columns: 1fr; }
-      .topbar { align-items: flex-start; flex-direction: column; }
-      .source { text-align: left; }
+      .topbar { flex-direction: column; }
+      .source { text-align: left; max-width: none; }
     }
 
-    @media (max-width: 560px) {
-      .app { width: min(100% - 20px, 1180px); padding-top: 18px; }
-      .trip-grid, .actions, .split, .quick { grid-template-columns: 1fr; }
+    @media (max-width: 620px) {
+      .app { width: min(100% - 20px, 1220px); }
+      .meter-grid, .controls, .split { grid-template-columns: 1fr; }
       .meter-head { align-items: flex-start; flex-direction: column; }
-      .fare { min-height: 78px; padding-inline: 10px; }
+      .fare { min-height: 84px; padding-inline: 10px; }
+      .gps-line { grid-template-columns: 84px 1fr; }
     }
   </style>
 </head>
@@ -425,278 +401,474 @@
       <div class="brand">
         <div class="taxi-sign" aria-hidden="true">TAXI</div>
         <div>
-          <h1>서울 택시 미터기</h1>
-          <p class="subtitle">거리, 소요시간, 출발 시각을 넣으면 서울 중형택시 예상 요금을 바로 계산합니다.</p>
+          <h1>실시간 택시 미터기</h1>
+          <p class="subtitle">GPS 위치로 이동 거리를 누적하고, 저속 주행 시간과 서울 중형택시 요금 기준을 적용합니다.</p>
         </div>
       </div>
-      <div class="source">
+      <p class="source">
         요금 기준: 서울특별시 택시요금<br>
         <a href="https://news.seoul.go.kr/traffic/archives/1659" target="_blank" rel="noreferrer">공식 자료 보기</a>
-      </div>
+      </p>
     </header>
 
-    <section class="layout" aria-label="택시 미터기 계산기">
+    <section class="layout" aria-label="실시간 택시 미터기">
       <div class="meter" aria-live="polite">
         <div class="meter-head">
-          <div class="status"><span class="status-dot" id="statusDot"></span><strong id="runStatus">운행 대기</strong></div>
-          <div class="mode-pill" id="rateMode">주간 요금</div>
+          <div class="status"><span class="dot" id="statusDot"></span><strong id="runStatus">빈차</strong></div>
+          <div class="badge" id="rateMode">GPS 대기</div>
         </div>
+
         <div class="display">
           <div class="fare-label">
-            <span>예상 결제 금액</span>
-            <span id="roundedLabel">10원 단위 반올림</span>
+            <span>현재 미터 요금</span>
+            <span id="meterMode">운행 전</span>
           </div>
           <div class="fare">
-            <strong id="fare">4,800</strong>
+            <strong id="fare">0</strong>
             <span>원</span>
           </div>
-          <div class="trip-grid">
-            <div class="trip-stat"><span>이동 거리</span><strong><span id="distanceView">1.6</span> km</strong></div>
-            <div class="trip-stat"><span>소요 시간</span><strong><span id="timeView">8</span> 분</strong></div>
-            <div class="trip-stat"><span>평균 속도</span><strong><span id="speedView">12.0</span> km/h</strong></div>
+          <div class="meter-grid">
+            <div class="meter-stat"><span>주행 거리</span><strong><span id="distanceView">0.000</span> km</strong></div>
+            <div class="meter-stat"><span>운행 시간</span><strong><span id="timeView">00:00</span></strong></div>
+            <div class="meter-stat"><span>현재 속도</span><strong><span id="speedView">0.0</span> km/h</strong></div>
+            <div class="meter-stat"><span>저속 시간</span><strong><span id="slowTimeView">00:00</span></strong></div>
           </div>
         </div>
-        <div class="actions">
-          <button class="btn btn-primary" id="startStopBtn" type="button">▶ 미터 시작</button>
-          <button class="btn btn-secondary" id="addMinuteBtn" type="button">＋ 1분</button>
-          <button class="btn btn-danger" id="resetBtn" type="button">↺ 초기화</button>
+
+        <div class="controls">
+          <button class="btn btn-primary" id="startBtn" type="button">승차 시작</button>
+          <button class="btn btn-secondary" id="pauseBtn" type="button" disabled>일시정지</button>
+          <button class="btn btn-green" id="finishBtn" type="button" disabled>요금 확정</button>
+          <button class="btn btn-danger" id="resetBtn" type="button">초기화</button>
         </div>
       </div>
 
       <aside>
         <section class="panel">
-          <h2>운행 설정</h2>
+          <h2>위치 추적</h2>
+          <canvas class="route" id="routeCanvas" width="780" height="460" aria-label="주행 경로"></canvas>
+          <div class="gps">
+            <button class="btn btn-secondary" id="gpsBtn" type="button">GPS 권한 요청</button>
+            <div class="gps-line"><span>상태</span><strong id="gpsStatus">위치 권한 필요</strong></div>
+            <div class="gps-line"><span>현재 위치</span><strong id="positionView">-</strong></div>
+            <div class="gps-line"><span>정확도</span><strong id="accuracyView">-</strong></div>
+            <div class="gps-line"><span>마지막 수신</span><strong id="lastFixView">-</strong></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>미터 설정</h2>
           <div class="form">
-            <div class="field">
-              <label for="distance">이동 거리</label>
-              <input id="distance" type="range" min="0" max="80" step="0.1" value="1.6">
-              <input id="distanceNumber" type="number" min="0" max="300" step="0.1" value="1.6" aria-label="이동 거리 km">
-            </div>
             <div class="split">
               <div class="field">
-                <label for="minutes">예상 소요시간</label>
-                <input id="minutes" type="number" min="0" max="600" step="1" value="8">
-              </div>
-              <div class="field">
-                <label for="departHour">출발 시각</label>
-                <select id="departHour" aria-label="출발 시각">
-                  <option value="8" selected>08:00</option>
-                  <option value="18">18:00</option>
-                  <option value="22">22:00</option>
-                  <option value="23">23:00</option>
-                  <option value="2">02:00</option>
+                <label for="fareMode">요금 모드</label>
+                <select id="fareMode">
+                  <option value="auto" selected>자동 할증</option>
+                  <option value="day">주간</option>
+                  <option value="night20">심야 20%</option>
+                  <option value="night40">심야 40%</option>
                 </select>
               </div>
-            </div>
-            <div class="field">
-              <label>교통 흐름</label>
-              <div class="segmented" role="tablist" aria-label="교통 흐름">
-                <button type="button" data-traffic="fast">원활</button>
-                <button type="button" data-traffic="normal" class="active">보통</button>
-                <button type="button" data-traffic="slow">정체</button>
+              <div class="field">
+                <label for="extras">기타요금</label>
+                <input id="extras" type="number" min="0" step="100" value="0">
               </div>
             </div>
             <label class="toggle">
               <span><strong>시계외 할증</strong><br><small>서울 경계 밖 운행 20%</small></span>
               <input id="outsideCity" type="checkbox" role="switch">
             </label>
-          </div>
-        </section>
-
-        <section class="panel">
-          <h2>빠른 예시</h2>
-          <div class="quick">
-            <button type="button" data-preset="short">강남 3km</button>
-            <button type="button" data-preset="night">심야 10km</button>
-            <button type="button" data-preset="airport">장거리 45km</button>
+            <label class="toggle">
+              <span><strong>GPS 미수신 시 시간요금</strong><br><small>터널/실내 등 위치 공백 보정</small></span>
+              <input id="chargeNoGps" type="checkbox" role="switch" checked>
+            </label>
           </div>
         </section>
 
         <section class="panel">
           <h2>요금 내역</h2>
-          <div class="breakdown">
-            <div class="row"><span id="baseLabel">기본요금</span><strong id="baseFare">4,800원</strong></div>
-            <div class="row"><span>거리 추가요금</span><strong id="distanceFare">0원</strong></div>
+          <div class="rows">
+            <div class="row"><span id="baseLabel">기본요금</span><strong id="baseFare">0원</strong></div>
+            <div class="row"><span>거리요금</span><strong id="distanceFare">0원</strong></div>
             <div class="row"><span>저속 시간요금</span><strong id="timeFare">0원</strong></div>
             <div class="row"><span>시계외 할증</span><strong id="outsideFare">0원</strong></div>
-            <div class="row total"><span>합계</span><strong id="totalFare">4,800원</strong></div>
+            <div class="row"><span>기타요금</span><strong id="extrasFare">0원</strong></div>
+            <div class="row total"><span>합계</span><strong id="totalFare">0원</strong></div>
           </div>
-          <p class="note">실제 미터 요금은 경로, 신호대기, 저속 주행, 호출료, 유료도로, 지역별 요금제에 따라 달라질 수 있습니다.</p>
+          <p class="note">브라우저 GPS 기반 추정 미터기입니다. 실제 영업용 택시 미터기는 법정 검정 장비와 차량 신호를 사용하므로 이 화면은 결제 확정 장비로 사용할 수 없습니다.</p>
+          <div class="receipt" id="receipt"></div>
         </section>
       </aside>
     </section>
   </main>
 
   <script>
+    const LOW_SPEED_KMH = 15.72;
+    const MAX_ACCURACY_M = 80;
+    const MAX_JUMP_KMH = 180;
+
     const rates = {
-      day: { name: '주간 요금', base: 4800, baseKm: 1.6, unitM: 131, unitSec: 30, unitWon: 100 },
-      night20: { name: '심야 20% 요금', base: 5800, baseKm: 1.6, unitM: 131, unitSec: 30, unitWon: 120 },
-      night40: { name: '심야 40% 요금', base: 6700, baseKm: 1.6, unitM: 131, unitSec: 30, unitWon: 140 }
+      day: { name: '주간', base: 4800, baseKm: 1.6, unitM: 131, unitSec: 30, unitWon: 100 },
+      night20: { name: '심야 20%', base: 5800, baseKm: 1.6, unitM: 131, unitSec: 30, unitWon: 120 },
+      night40: { name: '심야 40%', base: 6700, baseKm: 1.6, unitM: 131, unitSec: 30, unitWon: 140 }
     };
 
     const state = {
-      running: false,
-      timer: null,
-      traffic: 'normal'
+      status: 'idle',
+      watchId: null,
+      tickId: null,
+      startedAt: null,
+      finishedAt: null,
+      elapsedSec: 0,
+      slowSec: 0,
+      distanceM: 0,
+      currentSpeedKmh: 0,
+      lastPoint: null,
+      lastTickAt: null,
+      route: [],
+      receipt: []
     };
 
+    const $ = (id) => document.getElementById(id);
     const els = {
-      fare: document.getElementById('fare'),
-      distance: document.getElementById('distance'),
-      distanceNumber: document.getElementById('distanceNumber'),
-      minutes: document.getElementById('minutes'),
-      departHour: document.getElementById('departHour'),
-      outsideCity: document.getElementById('outsideCity'),
-      distanceView: document.getElementById('distanceView'),
-      timeView: document.getElementById('timeView'),
-      speedView: document.getElementById('speedView'),
-      rateMode: document.getElementById('rateMode'),
-      runStatus: document.getElementById('runStatus'),
-      statusDot: document.getElementById('statusDot'),
-      startStopBtn: document.getElementById('startStopBtn'),
-      addMinuteBtn: document.getElementById('addMinuteBtn'),
-      resetBtn: document.getElementById('resetBtn'),
-      baseLabel: document.getElementById('baseLabel'),
-      baseFare: document.getElementById('baseFare'),
-      distanceFare: document.getElementById('distanceFare'),
-      timeFare: document.getElementById('timeFare'),
-      outsideFare: document.getElementById('outsideFare'),
-      totalFare: document.getElementById('totalFare')
+      fare: $('fare'),
+      distanceView: $('distanceView'),
+      timeView: $('timeView'),
+      speedView: $('speedView'),
+      slowTimeView: $('slowTimeView'),
+      runStatus: $('runStatus'),
+      statusDot: $('statusDot'),
+      rateMode: $('rateMode'),
+      meterMode: $('meterMode'),
+      gpsStatus: $('gpsStatus'),
+      positionView: $('positionView'),
+      accuracyView: $('accuracyView'),
+      lastFixView: $('lastFixView'),
+      fareMode: $('fareMode'),
+      outsideCity: $('outsideCity'),
+      chargeNoGps: $('chargeNoGps'),
+      extras: $('extras'),
+      baseLabel: $('baseLabel'),
+      baseFare: $('baseFare'),
+      distanceFare: $('distanceFare'),
+      timeFare: $('timeFare'),
+      outsideFare: $('outsideFare'),
+      extrasFare: $('extrasFare'),
+      totalFare: $('totalFare'),
+      receipt: $('receipt'),
+      routeCanvas: $('routeCanvas'),
+      gpsBtn: $('gpsBtn'),
+      startBtn: $('startBtn'),
+      pauseBtn: $('pauseBtn'),
+      finishBtn: $('finishBtn'),
+      resetBtn: $('resetBtn')
     };
 
-    function money(value) {
+    function won(value) {
       return Math.round(value / 10) * 10;
     }
 
     function formatWon(value) {
-      return money(value).toLocaleString('ko-KR') + '원';
+      return won(value).toLocaleString('ko-KR') + '원';
     }
 
-    function getRate(hour) {
+    function formatClock(sec) {
+      const total = Math.max(0, Math.floor(sec));
+      const mm = String(Math.floor(total / 60)).padStart(2, '0');
+      const ss = String(total % 60).padStart(2, '0');
+      return `${mm}:${ss}`;
+    }
+
+    function getAutoRate(date = new Date()) {
+      const hour = date.getHours();
       if (hour >= 23 || hour < 2) return rates.night40;
       if ((hour >= 22 && hour < 23) || (hour >= 2 && hour < 4)) return rates.night20;
       return rates.day;
     }
 
-    function trafficSeconds(minutes, speed) {
-      const totalSeconds = minutes * 60;
-      if (speed >= 15.72) return 0;
-      const ratio = state.traffic === 'slow' ? 0.58 : state.traffic === 'normal' ? 0.34 : 0.16;
-      return totalSeconds * ratio;
+    function getRate() {
+      const mode = els.fareMode.value;
+      if (mode === 'auto') return getAutoRate(state.startedAt || new Date());
+      return rates[mode];
+    }
+
+    function haversine(a, b) {
+      const toRad = (v) => v * Math.PI / 180;
+      const r = 6371000;
+      const dLat = toRad(b.lat - a.lat);
+      const dLon = toRad(b.lng - a.lng);
+      const lat1 = toRad(a.lat);
+      const lat2 = toRad(b.lat);
+      const x = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
+      return 2 * r * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
     }
 
     function calculateFare() {
-      const distanceKm = Math.max(0, Number(els.distanceNumber.value) || 0);
-      const minutes = Math.max(0, Number(els.minutes.value) || 0);
-      const hour = Number(els.departHour.value);
-      const rate = getRate(hour);
-      const speed = minutes > 0 ? distanceKm / (minutes / 60) : 0;
-      const extraMeters = Math.max(0, (distanceKm - rate.baseKm) * 1000);
+      const rate = getRate();
+      const extras = Math.max(0, Number(els.extras.value) || 0);
+      const charged = state.status === 'idle' ? 0 : rate.base;
+      const extraMeters = Math.max(0, state.distanceM - rate.baseKm * 1000);
       const distanceFare = Math.floor(extraMeters / rate.unitM) * rate.unitWon;
-      const timeFare = Math.floor(trafficSeconds(minutes, speed) / rate.unitSec) * rate.unitWon;
-      const subtotal = rate.base + distanceFare + timeFare;
+      const timeFare = Math.floor(state.slowSec / rate.unitSec) * rate.unitWon;
+      const subtotal = charged + distanceFare + timeFare;
       const outsideFare = els.outsideCity.checked ? subtotal * 0.2 : 0;
-      const total = subtotal + outsideFare;
+      const total = subtotal + outsideFare + extras;
 
-      return { distanceKm, minutes, speed, rate, distanceFare, timeFare, outsideFare, total };
+      return { rate, baseFare: charged, distanceFare, timeFare, outsideFare, extras, total };
+    }
+
+    function addReceipt(text) {
+      const time = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      state.receipt.unshift(`${time} ${text}`);
+      state.receipt = state.receipt.slice(0, 14);
+      els.receipt.innerHTML = state.receipt.map((line) => `<div>${line}</div>`).join('');
     }
 
     function render() {
-      const result = calculateFare();
-      els.fare.textContent = money(result.total).toLocaleString('ko-KR');
-      els.distanceView.textContent = result.distanceKm.toFixed(1);
-      els.timeView.textContent = Math.round(result.minutes).toLocaleString('ko-KR');
-      els.speedView.textContent = result.speed ? result.speed.toFixed(1) : '0.0';
-      els.rateMode.textContent = result.rate.name + (els.outsideCity.checked ? ' + 시계외' : '');
-      els.baseLabel.textContent = `기본요금 (${result.rate.baseKm}km까지)`;
-      els.baseFare.textContent = formatWon(result.rate.base);
-      els.distanceFare.textContent = formatWon(result.distanceFare);
-      els.timeFare.textContent = formatWon(result.timeFare);
-      els.outsideFare.textContent = formatWon(result.outsideFare);
-      els.totalFare.textContent = formatWon(result.total);
-    }
+      const fare = calculateFare();
+      const gpsAge = state.lastPoint ? Math.round((Date.now() - state.lastPoint.time) / 1000) : null;
 
-    function setDistance(value) {
-      const next = Math.max(0, Math.min(300, Number(value) || 0));
-      els.distance.value = Math.min(80, next).toFixed(1);
-      els.distanceNumber.value = next.toFixed(1);
-      render();
-    }
+      els.fare.textContent = won(fare.total).toLocaleString('ko-KR');
+      els.distanceView.textContent = (state.distanceM / 1000).toFixed(3);
+      els.timeView.textContent = formatClock(state.elapsedSec);
+      els.slowTimeView.textContent = formatClock(state.slowSec);
+      els.speedView.textContent = state.currentSpeedKmh.toFixed(1);
+      els.rateMode.textContent = `${fare.rate.name}${els.outsideCity.checked ? ' + 시계외' : ''}`;
+      els.baseLabel.textContent = `기본요금 (${fare.rate.baseKm}km까지)`;
+      els.baseFare.textContent = formatWon(fare.baseFare);
+      els.distanceFare.textContent = formatWon(fare.distanceFare);
+      els.timeFare.textContent = formatWon(fare.timeFare);
+      els.outsideFare.textContent = formatWon(fare.outsideFare);
+      els.extrasFare.textContent = formatWon(fare.extras);
+      els.totalFare.textContent = formatWon(fare.total);
 
-    function setRunning(next) {
-      state.running = next;
-      els.runStatus.textContent = next ? '운행 중' : '운행 대기';
-      els.startStopBtn.textContent = next ? 'Ⅱ 일시정지' : '▶ 미터 시작';
-      els.statusDot.style.background = next ? 'var(--green)' : '#9ca3af';
-      els.statusDot.style.boxShadow = next ? '0 0 0 5px rgba(20,164,108,0.16)' : '0 0 0 5px rgba(156,163,175,0.16)';
-
-      if (state.timer) window.clearInterval(state.timer);
-      if (next) {
-        state.timer = window.setInterval(() => {
-          const trafficBoost = state.traffic === 'slow' ? 0.07 : state.traffic === 'normal' ? 0.12 : 0.2;
-          els.minutes.value = String((Number(els.minutes.value) || 0) + 1);
-          setDistance((Number(els.distanceNumber.value) || 0) + trafficBoost);
-        }, 1200);
+      if (state.status === 'idle') {
+        els.runStatus.textContent = '빈차';
+        els.meterMode.textContent = '운행 전';
+      } else if (state.status === 'running') {
+        els.runStatus.textContent = '승차';
+        els.meterMode.textContent = state.currentSpeedKmh <= LOW_SPEED_KMH ? '저속 병산 중' : '거리 주행 중';
+      } else if (state.status === 'paused') {
+        els.runStatus.textContent = '일시정지';
+        els.meterMode.textContent = '정지';
+      } else {
+        els.runStatus.textContent = '요금 확정';
+        els.meterMode.textContent = '운행 완료';
       }
+
+      els.statusDot.classList.toggle('active', state.status === 'running');
+      els.startBtn.disabled = state.status === 'running';
+      els.pauseBtn.disabled = state.status === 'idle' || state.status === 'finished';
+      els.finishBtn.disabled = state.status === 'idle' || state.status === 'finished';
+      els.pauseBtn.textContent = state.status === 'paused' ? '다시 시작' : '일시정지';
+
+      if (state.lastPoint) {
+        els.positionView.textContent = `${state.lastPoint.lat.toFixed(6)}, ${state.lastPoint.lng.toFixed(6)}`;
+        els.accuracyView.textContent = `±${Math.round(state.lastPoint.accuracy)}m`;
+        els.lastFixView.textContent = `${gpsAge}초 전`;
+      }
+
+      drawRoute();
     }
 
-    els.distance.addEventListener('input', (event) => setDistance(event.target.value));
-    els.distanceNumber.addEventListener('input', (event) => setDistance(event.target.value));
-    els.minutes.addEventListener('input', render);
-    els.departHour.addEventListener('change', render);
-    els.outsideCity.addEventListener('change', render);
-    els.addMinuteBtn.addEventListener('click', () => {
-      els.minutes.value = String((Number(els.minutes.value) || 0) + 1);
+    function tick() {
+      if (state.status !== 'running') return;
+      const now = Date.now();
+      const delta = state.lastTickAt ? Math.max(0, (now - state.lastTickAt) / 1000) : 0;
+      state.lastTickAt = now;
+      state.elapsedSec += delta;
+
+      const gpsFresh = state.lastPoint && now - state.lastPoint.time < 7000;
+      if (state.currentSpeedKmh <= LOW_SPEED_KMH || (!gpsFresh && els.chargeNoGps.checked)) {
+        state.slowSec += delta;
+      }
       render();
-    });
-    els.startStopBtn.addEventListener('click', () => setRunning(!state.running));
-    els.resetBtn.addEventListener('click', () => {
-      setRunning(false);
-      els.departHour.value = '8';
-      els.minutes.value = '8';
-      els.outsideCity.checked = false;
-      state.traffic = 'normal';
-      document.querySelectorAll('[data-traffic]').forEach((button) => {
-        button.classList.toggle('active', button.dataset.traffic === 'normal');
-      });
-      setDistance(1.6);
-    });
+    }
 
-    document.querySelectorAll('[data-traffic]').forEach((button) => {
-      button.addEventListener('click', () => {
-        state.traffic = button.dataset.traffic;
-        document.querySelectorAll('[data-traffic]').forEach((item) => {
-          item.classList.toggle('active', item === button);
-        });
-        render();
+    function startGps() {
+      if (!navigator.geolocation) {
+        els.gpsStatus.textContent = '이 브라우저는 위치 기능을 지원하지 않습니다.';
+        return;
+      }
+      if (state.watchId !== null) navigator.geolocation.clearWatch(state.watchId);
+      els.gpsStatus.textContent = 'GPS 수신 중...';
+      state.watchId = navigator.geolocation.watchPosition(handlePosition, handleGpsError, {
+        enableHighAccuracy: true,
+        maximumAge: 1000,
+        timeout: 12000
       });
-    });
+    }
 
-    document.querySelectorAll('[data-preset]').forEach((button) => {
-      button.addEventListener('click', () => {
-        const preset = button.dataset.preset;
-        setRunning(false);
-        if (preset === 'short') {
-          setDistance(3);
-          els.minutes.value = '12';
-          els.departHour.value = '18';
-          els.outsideCity.checked = false;
-        }
-        if (preset === 'night') {
-          setDistance(10);
-          els.minutes.value = '28';
-          els.departHour.value = '23';
-          els.outsideCity.checked = false;
-        }
-        if (preset === 'airport') {
-          setDistance(45);
-          els.minutes.value = '70';
-          els.departHour.value = '22';
-          els.outsideCity.checked = true;
-        }
+    function handlePosition(pos) {
+      const coords = pos.coords;
+      const point = {
+        lat: coords.latitude,
+        lng: coords.longitude,
+        accuracy: coords.accuracy || 999,
+        speed: coords.speed,
+        time: pos.timestamp || Date.now()
+      };
+
+      if (point.accuracy > MAX_ACCURACY_M) {
+        els.gpsStatus.textContent = `정확도 낮음: ±${Math.round(point.accuracy)}m`;
+        state.lastPoint = point;
         render();
+        return;
+      }
+
+      els.gpsStatus.textContent = 'GPS 정상 수신';
+
+      if (state.status === 'running' && state.lastPoint) {
+        const meters = haversine(state.lastPoint, point);
+        const seconds = Math.max(1, (point.time - state.lastPoint.time) / 1000);
+        const speedKmh = coords.speed !== null && coords.speed >= 0 ? coords.speed * 3.6 : (meters / seconds) * 3.6;
+        state.currentSpeedKmh = Math.max(0, speedKmh);
+
+        if (meters >= 1 && speedKmh <= MAX_JUMP_KMH) {
+          state.distanceM += meters;
+          state.route.push(point);
+        }
+      } else if (coords.speed !== null && coords.speed >= 0) {
+        state.currentSpeedKmh = Math.max(0, coords.speed * 3.6);
+      }
+
+      state.lastPoint = point;
+      if (state.route.length === 0) state.route.push(point);
+      render();
+    }
+
+    function handleGpsError(error) {
+      const messages = {
+        1: '위치 권한이 거부되었습니다.',
+        2: '위치를 확인할 수 없습니다.',
+        3: '위치 요청 시간이 초과되었습니다.'
+      };
+      els.gpsStatus.textContent = messages[error.code] || 'GPS 오류가 발생했습니다.';
+      render();
+    }
+
+    function startTrip() {
+      if (state.watchId === null) startGps();
+      state.status = 'running';
+      state.startedAt = state.startedAt || new Date();
+      state.finishedAt = null;
+      state.lastTickAt = Date.now();
+      if (!state.tickId) state.tickId = window.setInterval(tick, 1000);
+      addReceipt('승차 시작');
+      render();
+    }
+
+    function pauseTrip() {
+      if (state.status === 'paused') {
+        state.status = 'running';
+        state.lastTickAt = Date.now();
+        addReceipt('운행 재개');
+      } else if (state.status === 'running') {
+        state.status = 'paused';
+        addReceipt('일시정지');
+      }
+      render();
+    }
+
+    function finishTrip() {
+      state.status = 'finished';
+      state.finishedAt = new Date();
+      addReceipt(`요금 확정: ${formatWon(calculateFare().total)}`);
+      render();
+    }
+
+    function resetTrip() {
+      state.status = 'idle';
+      state.startedAt = null;
+      state.finishedAt = null;
+      state.elapsedSec = 0;
+      state.slowSec = 0;
+      state.distanceM = 0;
+      state.currentSpeedKmh = 0;
+      state.lastPoint = null;
+      state.lastTickAt = null;
+      state.route = [];
+      state.receipt = [];
+      els.receipt.innerHTML = '';
+      els.positionView.textContent = '-';
+      els.accuracyView.textContent = '-';
+      els.lastFixView.textContent = '-';
+      els.gpsStatus.textContent = state.watchId === null ? '위치 권한 필요' : 'GPS 수신 중...';
+      render();
+    }
+
+    function drawRoute() {
+      const canvas = els.routeCanvas;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillRect(0, 0, w, h);
+      ctx.strokeStyle = '#d9dee7';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < w; x += 40) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+      }
+      for (let y = 0; y < h; y += 40) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+      }
+
+      if (state.route.length < 2) {
+        ctx.fillStyle = '#657181';
+        ctx.font = '24px Malgun Gothic, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('승차 시작 후 GPS 경로가 표시됩니다', w / 2, h / 2);
+        return;
+      }
+
+      const lats = state.route.map((p) => p.lat);
+      const lngs = state.route.map((p) => p.lng);
+      const minLat = Math.min(...lats);
+      const maxLat = Math.max(...lats);
+      const minLng = Math.min(...lngs);
+      const maxLng = Math.max(...lngs);
+      const pad = 32;
+      const latSpan = Math.max(0.00001, maxLat - minLat);
+      const lngSpan = Math.max(0.00001, maxLng - minLng);
+      const project = (p) => ({
+        x: pad + ((p.lng - minLng) / lngSpan) * (w - pad * 2),
+        y: h - pad - ((p.lat - minLat) / latSpan) * (h - pad * 2)
       });
-    });
+
+      ctx.strokeStyle = '#111827';
+      ctx.lineWidth = 7;
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      state.route.forEach((p, i) => {
+        const pt = project(p);
+        if (i === 0) ctx.moveTo(pt.x, pt.y);
+        else ctx.lineTo(pt.x, pt.y);
+      });
+      ctx.stroke();
+
+      ctx.strokeStyle = '#ffd43b';
+      ctx.lineWidth = 4;
+      ctx.stroke();
+
+      const first = project(state.route[0]);
+      const last = project(state.route[state.route.length - 1]);
+      ctx.fillStyle = '#12a66a';
+      ctx.beginPath(); ctx.arc(first.x, first.y, 9, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#e04343';
+      ctx.beginPath(); ctx.arc(last.x, last.y, 10, 0, Math.PI * 2); ctx.fill();
+    }
+
+    els.gpsBtn.addEventListener('click', startGps);
+    els.startBtn.addEventListener('click', startTrip);
+    els.pauseBtn.addEventListener('click', pauseTrip);
+    els.finishBtn.addEventListener('click', finishTrip);
+    els.resetBtn.addEventListener('click', resetTrip);
+    els.fareMode.addEventListener('change', render);
+    els.outsideCity.addEventListener('change', render);
+    els.chargeNoGps.addEventListener('change', render);
+    els.extras.addEventListener('input', render);
 
     render();
   </script>
