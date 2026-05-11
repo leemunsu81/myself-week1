@@ -1,0 +1,27 @@
+{
+  "name": "실시간 택시 미터기",
+  "short_name": "택시 미터기",
+  "description": "GPS 위치 기반 실시간 택시 미터기",
+  "lang": "ko",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eef1f5",
+  "theme_color": "#ffd43b",
+  "categories": ["navigation", "utilities", "travel"],
+  "icons": [
+    {
+      "src": "icons/taxi-meter-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/taxi-meter-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
