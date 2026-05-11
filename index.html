@@ -3,587 +3,772 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>네이버 스마트스토어 컨설팅 진단</title>
+  <title>나는 어떤 귀신이 될까? 👻</title>
+  <meta name="description" content="죽으면 나는 어떤 귀신이 될까? 10문항으로 알아보는 나의 귀신 유형 테스트">
+  <meta property="og:title" content="나는 어떤 귀신이 될까? 👻">
+  <meta property="og:description" content="10문항으로 알아보는 나의 귀신 유형 테스트">
   <style>
-    :root {
-      color-scheme: light;
-      --bg: #f4f7f6;
-      --surface: #ffffff;
-      --surface-2: #eef4f1;
-      --text: #17211d;
-      --muted: #66746f;
-      --line: #d8e2de;
-      --primary: #0f7b4f;
-      --primary-dark: #0a5f3c;
-      --accent: #f2c94c;
-      --warn: #b54708;
-      --good: #067647;
-      --bad: #b42318;
-      font-family: Arial, "Malgun Gothic", sans-serif;
-    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    * {
-      box-sizing: border-box;
+    :root {
+      --bg: #0b0b18;
+      --surface: rgba(255,255,255,0.06);
+      --surface-hover: rgba(255,255,255,0.12);
+      --border: rgba(255,255,255,0.1);
+      --border-hover: rgba(139,92,246,0.6);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --purple: #a78bfa;
+      --cyan: #67e8f9;
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
     }
 
     body {
       min-height: 100vh;
-      margin: 0;
       background: var(--bg);
       color: var(--text);
+      overflow-x: hidden;
     }
 
-    button,
-    input,
-    select,
-    textarea {
-      font: inherit;
+    /* Background gradient blobs */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 20% 20%, rgba(139,92,246,0.15) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 80% 80%, rgba(6,182,212,0.1) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 60% at 50% 50%, rgba(236,72,153,0.05) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Floating particles */
+    .particles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      animation: floatUp linear infinite;
+      opacity: 0;
+    }
+
+    @keyframes floatUp {
+      0%   { transform: translateY(110vh) rotate(0deg);   opacity: 0; }
+      8%   { opacity: 0.7; }
+      92%  { opacity: 0.7; }
+      100% { transform: translateY(-80px) rotate(540deg); opacity: 0; }
     }
 
     .app {
-      width: min(1180px, calc(100vw - 32px));
-      margin: 0 auto;
-      padding: 32px 0;
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
     }
 
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
+    /* ── Shared screen ── */
+    .screen {
+      width: 100%;
+      max-width: 580px;
+    }
+
+    .fade-in {
+      animation: fadeSlideUp 0.5s ease both;
+    }
+
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Intro ── */
+    .intro-emoji {
+      font-size: 86px;
+      text-align: center;
+      display: block;
+      animation: bob 3.5s ease-in-out infinite;
+      line-height: 1;
       margin-bottom: 20px;
     }
 
-    .brand {
-      display: grid;
-      gap: 4px;
+    @keyframes bob {
+      0%, 100% { transform: translateY(0) rotate(-3deg); }
+      50%       { transform: translateY(-14px) rotate(3deg); }
     }
 
-    .brand h1 {
-      margin: 0;
-      font-size: 28px;
-      line-height: 1.2;
-      letter-spacing: 0;
+    .intro-title {
+      text-align: center;
+      font-size: clamp(26px, 6vw, 44px);
+      font-weight: 900;
+      line-height: 1.25;
+      background: linear-gradient(135deg, #c084fc 0%, #67e8f9 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
     }
 
-    .brand p {
-      margin: 0;
+    .intro-subtitle {
+      text-align: center;
       color: var(--muted);
-      line-height: 1.5;
-    }
-
-    .score-pill {
-      min-width: 150px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--surface);
-      padding: 12px 14px;
-      text-align: right;
-    }
-
-    .score-pill strong {
-      display: block;
-      font-size: 26px;
-      color: var(--primary);
-    }
-
-    .score-pill span {
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
-      gap: 18px;
-      align-items: start;
-    }
-
-    .panel {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 20px;
-    }
-
-    .section-title {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .section-title h2 {
-      margin: 0;
-      font-size: 20px;
-      letter-spacing: 0;
-    }
-
-    .section-title span {
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-    }
-
-    label {
-      display: grid;
-      gap: 8px;
-      color: var(--muted);
-      font-size: 14px;
-      font-weight: 700;
-    }
-
-    .wide {
-      grid-column: 1 / -1;
-    }
-
-    input,
-    select,
-    textarea {
-      width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      background: #fff;
-      color: var(--text);
       font-size: 15px;
-      outline: 0;
+      line-height: 1.7;
+      margin-bottom: 28px;
     }
 
-    input,
-    select {
-      height: 42px;
-      padding: 0 11px;
-    }
-
-    textarea {
-      min-height: 92px;
-      resize: vertical;
-      padding: 11px;
-      line-height: 1.5;
-    }
-
-    input:focus,
-    select:focus,
-    textarea:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(15, 123, 79, 0.12);
-    }
-
-    .actions {
+    .intro-tags {
       display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 18px;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
     }
 
-    button {
-      height: 42px;
-      border: 0;
-      border-radius: 6px;
-      padding: 0 16px;
-      cursor: pointer;
-      font-weight: 800;
-    }
-
-    .secondary {
-      background: var(--surface-2);
-      color: var(--text);
-      border: 1px solid var(--line);
-    }
-
-    .primary {
-      background: var(--primary);
-      color: white;
-    }
-
-    .primary:hover {
-      background: var(--primary-dark);
-    }
-
-    .report {
-      display: grid;
-      gap: 14px;
-    }
-
-    .summary {
-      display: grid;
-      gap: 12px;
-      padding: 16px;
-      border-radius: 8px;
-      background: #f8fbfa;
-      border: 1px solid var(--line);
-    }
-
-    .summary h3 {
-      margin: 0;
-      font-size: 18px;
-      line-height: 1.35;
-    }
-
-    .summary p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.55;
-    }
-
-    .metrics {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-    }
-
-    .metric {
-      min-height: 78px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 12px;
+    .tag {
+      padding: 5px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
       background: var(--surface);
+      font-size: 13px;
+      color: var(--muted);
     }
 
-    .metric span {
+    .btn-start {
       display: block;
-      color: var(--muted);
+      width: 100%;
+      max-width: 300px;
+      margin: 0 auto;
+      padding: 17px 32px;
+      background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+      border: none;
+      border-radius: 50px;
+      color: #fff;
+      font-size: 17px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 0 32px rgba(139,92,246,0.45);
+    }
+
+    .btn-start:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 48px rgba(139,92,246,0.65);
+    }
+
+    /* ── Progress ── */
+    .progress-wrap { margin-bottom: 24px; }
+
+    .progress-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .progress-label { color: var(--muted); font-size: 13px; }
+
+    .progress-count { color: var(--purple); font-weight: 700; font-size: 13px; }
+
+    .progress-bar {
+      height: 5px;
+      background: var(--surface);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #8b5cf6, #06b6d4);
+      border-radius: 3px;
+      transition: width 0.45s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* ── Question card ── */
+    .question-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 34px 28px;
+      backdrop-filter: blur(12px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    .question-card.leaving {
+      opacity: 0;
+      transform: translateX(-28px);
+    }
+
+    .question-card.entering {
+      opacity: 0;
+      transform: translateX(28px);
+    }
+
+    .q-number {
       font-size: 12px;
       font-weight: 800;
+      letter-spacing: 2px;
+      color: var(--purple);
+      margin-bottom: 14px;
+    }
+
+    .q-text {
+      font-size: clamp(17px, 4vw, 21px);
+      font-weight: 800;
+      line-height: 1.45;
+      margin-bottom: 26px;
+    }
+
+    .options { display: grid; gap: 11px; }
+
+    .option-btn {
+      width: 100%;
+      padding: 15px 18px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      transition: background 0.18s, border-color 0.18s, transform 0.18s;
+      line-height: 1.45;
+    }
+
+    .option-btn:hover {
+      background: var(--surface-hover);
+      border-color: var(--border-hover);
+      transform: translateX(5px);
+    }
+
+    .option-btn.selected {
+      background: rgba(139,92,246,0.22);
+      border-color: #a78bfa;
+    }
+
+    .option-btn:disabled { cursor: default; }
+
+    /* ── Result ── */
+    .result-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 44px 28px 36px;
+      backdrop-filter: blur(12px);
+      text-align: center;
+    }
+
+    .result-badge {
+      display: inline-block;
+      padding: 4px 16px;
+      border-radius: 20px;
+      background: rgba(167,139,250,0.15);
+      border: 1px solid rgba(167,139,250,0.35);
+      color: var(--purple);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      margin-bottom: 22px;
+    }
+
+    .result-emoji {
+      font-size: 84px;
+      display: block;
+      margin-bottom: 16px;
+      animation: bob 3.5s ease-in-out infinite;
+    }
+
+    .result-subtitle {
+      color: var(--muted);
+      font-size: 14px;
       margin-bottom: 6px;
     }
 
-    .metric strong {
-      font-size: 22px;
-      line-height: 1.2;
-    }
-
-    .recommendations {
-      display: grid;
-      gap: 10px;
-    }
-
-    .recommendation {
-      border: 1px solid var(--line);
-      border-left: 5px solid var(--primary);
-      border-radius: 8px;
-      padding: 13px 14px;
-      background: var(--surface);
-    }
-
-    .recommendation.warning {
-      border-left-color: var(--warn);
-    }
-
-    .recommendation.good {
-      border-left-color: var(--good);
-    }
-
-    .recommendation h4 {
-      margin: 0 0 7px;
-      font-size: 15px;
-    }
-
-    .recommendation p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.5;
-      font-size: 14px;
-    }
-
-    .checklist {
-      display: grid;
-      gap: 8px;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-
-    .checklist li {
-      display: grid;
-      grid-template-columns: 22px 1fr;
-      gap: 8px;
-      align-items: start;
-      color: var(--muted);
-      line-height: 1.45;
-      font-size: 14px;
-    }
-
-    .checkmark {
-      width: 22px;
-      height: 22px;
-      display: grid;
-      place-items: center;
-      border-radius: 50%;
-      background: #e5f6ee;
-      color: var(--good);
+    .result-name {
+      font-size: clamp(32px, 8vw, 52px);
       font-weight: 900;
-      font-size: 13px;
+      margin-bottom: 24px;
+      line-height: 1.1;
     }
 
-    @media (max-width: 900px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-
-      .score-pill {
-        text-align: left;
-      }
+    .result-desc {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.85;
+      margin-bottom: 24px;
+      text-align: left;
+      padding: 18px 20px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 12px;
+      border: 1px solid var(--border);
     }
 
-    @media (max-width: 620px) {
-      .app {
-        width: min(100vw - 24px, 1180px);
-        padding: 18px 0;
-      }
+    .traits {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 32px;
+    }
 
-      .topbar,
-      .actions {
-        flex-direction: column;
-        align-items: stretch;
-      }
+    .trait {
+      padding: 5px 13px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      font-size: 12px;
+      font-weight: 700;
+    }
 
-      .form-grid,
-      .metrics {
-        grid-template-columns: 1fr;
-      }
+    .result-actions {
+      display: flex;
+      gap: 11px;
+    }
+
+    .btn-retry {
+      flex: 1;
+      padding: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-retry:hover { background: var(--surface-hover); }
+
+    .btn-share {
+      flex: 1;
+      padding: 14px;
+      background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 0 22px rgba(139,92,246,0.3);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-share:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 32px rgba(139,92,246,0.55);
+    }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1e293b;
+      color: var(--text);
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+      z-index: 100;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 480px) {
+      .question-card, .result-card { padding: 24px 18px; }
+      .result-actions { flex-direction: column; }
     }
   </style>
 </head>
 <body>
-  <main class="app">
-    <section class="topbar" aria-label="서비스 소개">
-      <div class="brand">
-        <h1>네이버 스마트스토어 컨설팅 진단</h1>
-        <p>상품, 가격, 전환, 광고 상태를 입력하면 우선순위와 실행 액션을 바로 정리합니다.</p>
-      </div>
-      <div class="score-pill" aria-live="polite">
-        <span>스토어 준비 점수</span>
-        <strong id="scoreValue">72</strong>
-      </div>
-    </section>
 
-    <div class="layout">
-      <section class="panel" aria-labelledby="inputTitle">
-        <div class="section-title">
-          <h2 id="inputTitle">스토어 현황</h2>
-          <span>숫자는 최근 30일 기준</span>
-        </div>
+<div class="particles" id="particles"></div>
 
-        <form id="consultingForm" class="form-grid">
-          <label>
-            대표 카테고리
-            <select id="category">
-              <option value="fashion">패션/잡화</option>
-              <option value="beauty">뷰티</option>
-              <option value="food">식품</option>
-              <option value="living">생활/인테리어</option>
-              <option value="digital">디지털/가전</option>
-            </select>
-          </label>
+<main class="app">
 
-          <label>
-            월 매출
-            <select id="revenue">
-              <option value="starter">300만원 미만</option>
-              <option value="growth" selected>300만-1,000만원</option>
-              <option value="scale">1,000만-5,000만원</option>
-              <option value="leader">5,000만원 이상</option>
-            </select>
-          </label>
-
-          <label>
-            방문자 수
-            <input id="visitors" type="number" min="0" value="3200">
-          </label>
-
-          <label>
-            구매 건수
-            <input id="orders" type="number" min="0" value="96">
-          </label>
-
-          <label>
-            평균 객단가
-            <input id="aov" type="number" min="0" value="38000">
-          </label>
-
-          <label>
-            광고비
-            <input id="adSpend" type="number" min="0" value="420000">
-          </label>
-
-          <label>
-            리뷰 수
-            <input id="reviews" type="number" min="0" value="48">
-          </label>
-
-          <label>
-            평균 평점
-            <input id="rating" type="number" min="0" max="5" step="0.1" value="4.6">
-          </label>
-
-          <label class="wide">
-            핵심 상품 설명
-            <textarea id="productText">사계절 사용 가능한 프리미엄 수납 박스, 빠른 배송, 무료 교환 가능</textarea>
-          </label>
-
-          <div class="actions wide">
-            <button class="secondary" id="resetButton" type="button">초기화</button>
-            <button class="primary" type="submit">진단하기</button>
-          </div>
-        </form>
-      </section>
-
-      <section class="panel report" aria-labelledby="reportTitle">
-        <div class="section-title">
-          <h2 id="reportTitle">컨설팅 리포트</h2>
-          <span id="priorityLabel">전환 개선 우선</span>
-        </div>
-
-        <div class="summary">
-          <h3 id="summaryTitle">상세페이지와 리뷰 신뢰도를 함께 보강하세요.</h3>
-          <p id="summaryText">현재 전환율은 3.0%로 양호하지만 광고비 대비 매출 효율을 더 끌어올릴 여지가 있습니다.</p>
-        </div>
-
-        <div class="metrics" aria-label="핵심 지표">
-          <div class="metric">
-            <span>전환율</span>
-            <strong id="conversionMetric">3.0%</strong>
-          </div>
-          <div class="metric">
-            <span>광고 매출 배수</span>
-            <strong id="roasMetric">8.7x</strong>
-          </div>
-          <div class="metric">
-            <span>리뷰 신뢰도</span>
-            <strong id="trustMetric">보통</strong>
-          </div>
-        </div>
-
-        <div id="recommendations" class="recommendations"></div>
-
-        <ul class="checklist" aria-label="실행 체크리스트">
-          <li><span class="checkmark">1</span><span>상품명 앞 30자에 핵심 키워드, 용도, 차별점을 압축합니다.</span></li>
-          <li><span class="checkmark">2</span><span>대표 이미지에는 사용 장면과 구성품을 한눈에 보이게 배치합니다.</span></li>
-          <li><span class="checkmark">3</span><span>리뷰 요청 메시지, 포토리뷰 혜택, 재구매 쿠폰을 자동화합니다.</span></li>
-        </ul>
-      </section>
+  <!-- ── Intro ── -->
+  <section class="screen fade-in" id="screenIntro">
+    <span class="intro-emoji">👻</span>
+    <h1 class="intro-title">나는 어떤 귀신이<br>될까?</h1>
+    <p class="intro-subtitle">
+      죽으면 당신은 어떤 귀신이 될까요?<br>
+      10문항으로 알아보는 나의 귀신 유형 테스트
+    </p>
+    <div class="intro-tags">
+      <span class="tag">👘 처녀귀신</span>
+      <span class="tag">👺 도깨비</span>
+      <span class="tag">🦊 구미호</span>
+      <span class="tag">🔥 한맺힌 귀신</span>
+      <span class="tag">✨ 수호신</span>
+      <span class="tag">+ 2가지 더</span>
     </div>
-  </main>
+    <button class="btn-start" id="btnStart">테스트 시작하기 →</button>
+  </section>
 
-  <script>
-    const form = document.querySelector("#consultingForm");
-    const scoreValue = document.querySelector("#scoreValue");
-    const priorityLabel = document.querySelector("#priorityLabel");
-    const summaryTitle = document.querySelector("#summaryTitle");
-    const summaryText = document.querySelector("#summaryText");
-    const conversionMetric = document.querySelector("#conversionMetric");
-    const roasMetric = document.querySelector("#roasMetric");
-    const trustMetric = document.querySelector("#trustMetric");
-    const recommendations = document.querySelector("#recommendations");
-    const resetButton = document.querySelector("#resetButton");
+  <!-- ── Questions ── -->
+  <section class="screen" id="screenQuestion" style="display:none">
+    <div class="progress-wrap">
+      <div class="progress-top">
+        <span class="progress-label">진행 중...</span>
+        <span class="progress-count" id="progressCount">1 / 10</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="question-card" id="questionCard">
+      <div class="q-number" id="qNumber">Q1</div>
+      <p class="q-text" id="qText"></p>
+      <div class="options" id="options"></div>
+    </div>
+  </section>
 
-    const categoryAdvice = {
-      fashion: "사이즈, 착용감, 교환 정책을 상세페이지 상단에 배치하면 이탈을 줄일 수 있습니다.",
-      beauty: "성분, 피부 타입, 사용 전후 이미지를 구조화해 검색 유입의 구매 확신을 높이세요.",
-      food: "원산지, 보관법, 배송 마감 시간을 명확히 보여주면 클레임과 문의가 줄어듭니다.",
-      living: "공간별 사용 예시와 실측 이미지를 강화하면 비교 구매에서 유리합니다.",
-      digital: "호환 기기, 보증, 설치 난이도를 표로 정리해 구매 불안을 낮추세요."
-    };
+  <!-- ── Result ── -->
+  <section class="screen" id="screenResult" style="display:none">
+    <div class="result-card fade-in">
+      <div class="result-badge">나의 귀신 유형은...</div>
+      <span class="result-emoji" id="resultEmoji"></span>
+      <p class="result-subtitle" id="resultSubtitle"></p>
+      <h2 class="result-name" id="resultName"></h2>
+      <div class="result-desc" id="resultDesc"></div>
+      <div class="traits" id="resultTraits"></div>
+      <div class="result-actions">
+        <button class="btn-retry" id="btnRetry">다시 테스트</button>
+        <button class="btn-share" id="btnShare">결과 공유하기</button>
+      </div>
+    </div>
+  </section>
 
-    function numberValue(id) {
-      return Math.max(0, Number(document.querySelector(id).value) || 0);
-    }
+</main>
 
-    function formatPercent(value) {
-      return `${value.toFixed(1)}%`;
-    }
+<div class="toast" id="toast">링크가 복사됐어요! 👻</div>
 
-    function makeRecommendation(title, body, type = "") {
-      const item = document.createElement("article");
-      item.className = `recommendation ${type}`.trim();
-      item.innerHTML = `<h4>${title}</h4><p>${body}</p>`;
-      return item;
-    }
+<script>
+/* ── Particles ── */
+(function () {
+  const el = document.getElementById('particles');
+  const colors = ['#8b5cf6','#06b6d4','#ec4899','#f59e0b','#a78bfa'];
+  for (let i = 0; i < 28; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 5 + 2;
+    p.style.cssText = [
+      `width:${size}px`,
+      `height:${size}px`,
+      `left:${Math.random() * 100}%`,
+      `background:${colors[Math.floor(Math.random() * colors.length)]}`,
+      `animation-duration:${Math.random() * 18 + 10}s`,
+      `animation-delay:${Math.random() * 20}s`,
+      `filter:blur(1px)`,
+    ].join(';');
+    el.appendChild(p);
+  }
+}());
 
-    function diagnose() {
-      const category = document.querySelector("#category").value;
-      const visitors = numberValue("#visitors");
-      const orders = numberValue("#orders");
-      const aov = numberValue("#aov");
-      const adSpend = numberValue("#adSpend");
-      const reviews = numberValue("#reviews");
-      const rating = Math.min(5, numberValue("#rating"));
-      const productText = document.querySelector("#productText").value.trim();
-      const sales = orders * aov;
-      const conversion = visitors > 0 ? (orders / visitors) * 100 : 0;
-      const roas = adSpend > 0 ? sales / adSpend : sales > 0 ? 99 : 0;
-      const trustScore = Math.min(100, Math.round((reviews * 0.9) + (rating * 12)));
+/* ── Data ── */
+const GHOSTS = [
+  {
+    name: '처녀귀신', emoji: '👘',
+    subtitle: '사랑의 미련을 간직한',
+    desc: '당신은 긴 머리카락을 늘어뜨린 새하얀 소복의 처녀귀신이 됩니다.\n\n이루지 못한 사랑과 그리움을 안고 이승을 떠돌며, 사랑했던 그 사람의 곁을 영원히 맴돌죠. 슬프지만 가장 아름다운 귀신으로, 당신의 사랑 이야기는 귀신 세계에서도 오래오래 전설로 남을 거예요.',
+    traits: ['감성적', '로맨티스트', '순수한 집착'],
+    color: '#f472b6',
+  },
+  {
+    name: '도깨비', emoji: '👺',
+    subtitle: '이승에서도 유쾌한',
+    desc: '당신은 죽어서도 장난기를 잃지 않는 유쾌한 도깨비가 됩니다!\n\n도깨비 방망이를 들고 사람들을 깜짝 놀라게 하거나, 따뜻한 장난으로 외로운 사람들 곁에 있어주기도 하죠. 귀신계의 분위기 메이커! 밤새 씨름 한판 어때요?',
+    traits: ['유쾌함', '에너지 넘침', '의리'],
+    color: '#fb923c',
+  },
+  {
+    name: '저승사자', emoji: '🗡️',
+    subtitle: '공정하고 냉철한',
+    desc: '당신은 흑백 도포를 입고 영혼들을 저승으로 안내하는 저승사자가 됩니다.\n\n책임감이 남달라 죽어서도 맡은 일을 완벽하게 해내죠. 차갑게 보이지만 그 누구보다 공정하며, 두려운 영혼에게 조용한 위로를 건네는 것도 잊지 않아요.',
+    traits: ['책임감', '공정함', '냉철함'],
+    color: '#94a3b8',
+  },
+  {
+    name: '구미호', emoji: '🦊',
+    subtitle: '신비롭고 매혹적인',
+    desc: '당신은 아홉 개의 꼬리를 휘날리는 신비로운 구미호가 됩니다.\n\n천 년의 수련으로 인간이 되고 싶다는 꿈을 품고, 사람들을 매혹하며 세상의 비밀을 파헤치죠. 그 누구도 당신의 진짜 의도를 알 수 없어요. 가장 영리하고 가장 위험한 귀신!',
+    traits: ['신비로움', '영리함', '매혹적'],
+    color: '#f59e0b',
+  },
+  {
+    name: '수호신', emoji: '✨',
+    subtitle: '사랑하는 이를 지키는',
+    desc: '당신은 눈에 보이지 않지만 언제나 곁에 있는 따뜻한 수호신이 됩니다.\n\n소중한 사람들이 위험에 처할 때마다 조용히 나타나 지켜주죠. 화려하지 않지만 가장 사랑받는 귀신이에요. 어쩌면 가장 행복한 귀신일지도 몰라요.',
+    traits: ['보호본능', '따뜻함', '헌신'],
+    color: '#34d399',
+  },
+  {
+    name: '한 맺힌 귀신', emoji: '🔥',
+    subtitle: '뜨거운 원한을 품은',
+    desc: '당신은 이승의 억울함을 절대 잊지 못하는 한 맺힌 귀신이 됩니다!\n\n복수가 완성될 때까지 저승에는 절대 가지 않겠다는 불타는 의지로 가득 차 있죠. 무섭지만 그 열정과 불굴의 의지만큼은 귀신 세계 최강. 원한이 풀릴 그날까지!',
+    traits: ['열정', '집요함', '불굴의 의지'],
+    color: '#f87171',
+  },
+  {
+    name: '달걀귀신', emoji: '🥚',
+    subtitle: '정체불명의 미스터리',
+    desc: '당신은 얼굴도, 이름도, 사연도 없는 달걀귀신이 됩니다.\n\n그냥 조용히 떠돌며 존재하죠. 사람들은 당신을 봐도 왜 무서운지 설명할 수 없어요. 집착도 원한도 없이 그냥 존재하는... 어쩌면 가장 자유롭고 초연한 귀신일지도 몰라요.',
+    traits: ['초연함', '미스터리', '자유로움'],
+    color: '#a78bfa',
+  },
+];
 
-      let score = 40;
-      score += Math.min(25, conversion * 5);
-      score += Math.min(20, roas * 2);
-      score += Math.min(15, trustScore / 6);
-      score += productText.length >= 40 ? 8 : 0;
-      score = Math.max(0, Math.min(100, Math.round(score)));
+/* scores index: 0=처녀귀신 1=도깨비 2=저승사자 3=구미호 4=수호신 5=한맺힌귀신 6=달걀귀신 */
+const QUESTIONS = [
+  {
+    q: '귀신이 된 첫날, 제일 먼저 하고 싶은 것은?',
+    opts: [
+      { text: '보고 싶은 그 사람에게 달려간다',        s: [3,0,0,0,1,0,0] },
+      { text: '내 장례식에서 사람들 반응 구경하기',     s: [0,3,0,0,0,0,0] },
+      { text: '저승에 가서 규칙부터 파악하기',          s: [0,0,3,1,0,0,1] },
+      { text: '나를 힘들게 했던 사람 찾아가기',         s: [0,0,0,0,0,3,0] },
+    ],
+  },
+  {
+    q: '출몰하고 싶은 장소를 고른다면?',
+    opts: [
+      { text: '우리가 추억을 쌓았던 그 카페',           s: [3,0,0,0,0,0,0] },
+      { text: '사람들로 북적이는 놀이공원',             s: [0,3,0,0,0,0,0] },
+      { text: '신비롭고 오래된 고택',                   s: [0,0,0,3,0,0,2] },
+      { text: '내가 살던 집 — 가족 곁에서 지키기',      s: [0,0,0,0,3,1,0] },
+    ],
+  },
+  {
+    q: '가질 수 있다면 어떤 귀신 능력을 원하나요?',
+    opts: [
+      { text: '꿈에 나타나 메시지 전달하기',            s: [3,0,0,0,2,0,0] },
+      { text: '물건 던지고 큰 소리 내기',               s: [0,3,0,0,0,1,0] },
+      { text: '누군가의 죽음을 미리 알기',              s: [0,0,3,1,0,0,0] },
+      { text: '다른 사람으로 자유자재로 변신하기',      s: [0,1,0,3,0,0,1] },
+    ],
+  },
+  {
+    q: '살아있을 때 나를 가장 잘 표현하는 단어는?',
+    opts: [
+      { text: '감성적 / 로맨틱',                        s: [3,0,0,0,1,0,0] },
+      { text: '유쾌함 / 에너지 넘침',                   s: [0,3,0,0,0,0,0] },
+      { text: '신비로움 / 쿨함',                        s: [0,0,1,3,0,0,2] },
+      { text: '따뜻함 / 책임감',                        s: [0,0,2,0,3,0,0] },
+    ],
+  },
+  {
+    q: '이 세상에서 가장 억울한 일은?',
+    opts: [
+      { text: '사랑하는 사람에게 마음을 전하지 못한 것', s: [3,0,0,0,0,1,0] },
+      { text: '하고 싶은 걸 다 못 해본 것',             s: [0,3,0,1,0,1,0] },
+      { text: '나쁜 사람이 벌 안 받고 잘 사는 것',      s: [0,0,1,0,0,3,0] },
+      { text: '딱히 없다 / 잘 모르겠다',                s: [0,0,2,1,1,0,3] },
+    ],
+  },
+  {
+    q: '나를 봤을 때 사람들이 어떤 반응을 보였으면 하나요?',
+    opts: [
+      { text: '슬프게 눈물 흘렸으면',                   s: [3,0,0,0,0,0,0] },
+      { text: '기절할 정도로 깜짝 놀랐으면',            s: [0,3,0,0,0,1,0] },
+      { text: '매혹되어 눈을 못 뗐으면',                s: [1,0,0,3,0,0,1] },
+      { text: '따뜻함과 편안함을 느꼈으면',             s: [0,0,1,0,3,0,0] },
+    ],
+  },
+  {
+    q: '100년 후에도 이승을 떠돌고 있다면 이유는?',
+    opts: [
+      { text: '아직도 그 사람이 너무 보고 싶어서',       s: [3,0,0,0,0,0,0] },
+      { text: '이승이 저승보다 훨씬 재미있어서',         s: [0,3,0,1,0,0,0] },
+      { text: '복수가 아직 끝나지 않아서',              s: [0,0,0,0,0,3,0] },
+      { text: '그냥... 딱히 이유는 없다',               s: [0,0,1,1,1,0,3] },
+    ],
+  },
+  {
+    q: '살아있을 때 나의 관계 스타일은?',
+    opts: [
+      { text: '한 사람을 오랫동안 깊이 사랑했다',        s: [3,0,0,0,1,0,0] },
+      { text: '친구가 많고 어디서나 분위기 메이커',       s: [0,3,0,0,0,0,0] },
+      { text: '조용하지만 가족은 목숨 걸고 챙겼다',      s: [0,0,1,0,3,0,0] },
+      { text: '혼자가 편했고 사람들이 나를 궁금해했다',  s: [0,0,0,3,0,0,2] },
+    ],
+  },
+  {
+    q: '죽기 직전, 남기고 싶은 마지막 한마디는?',
+    opts: [
+      { text: '"사랑해..."',                            s: [3,0,0,0,1,0,0] },
+      { text: '"아 진짜 재밌었다 ㅋㅋ"',                s: [0,3,0,0,0,0,0] },
+      { text: '"이대로 끝낼 수 없어!!!"',               s: [0,0,0,1,0,3,0] },
+      { text: '"..." (아무 말 없음)',                    s: [0,0,2,2,0,0,3] },
+    ],
+  },
+  {
+    q: '이승에서 가장 원하는 것은?',
+    opts: [
+      { text: '사랑했던 사람의 일상을 조용히 지켜보기',  s: [2,0,0,0,3,0,0] },
+      { text: '새로 태어난 세상에서 사람들 놀리기',       s: [0,3,0,1,0,0,0] },
+      { text: '이 세상의 숨겨진 비밀 파헤치기',          s: [0,0,1,3,0,0,1] },
+      { text: '마땅한 정의가 실현되는 것 보기',          s: [0,0,1,0,0,3,0] },
+    ],
+  },
+];
 
-      scoreValue.textContent = score;
-      conversionMetric.textContent = formatPercent(conversion);
-      roasMetric.textContent = roas >= 99 ? "99x+" : `${roas.toFixed(1)}x`;
-      trustMetric.textContent = trustScore >= 80 ? "높음" : trustScore >= 50 ? "보통" : "낮음";
+/* ── State ── */
+let currentQ = 0;
+let scores = [];
 
-      recommendations.innerHTML = "";
-      const items = [];
+/* ── UI helpers ── */
+function show(id)  { document.getElementById(id).style.display = 'block'; }
+function hide(id)  { document.getElementById(id).style.display = 'none'; }
 
-      if (conversion < 2) {
-        items.push(makeRecommendation("상세페이지 전환 개선", "첫 화면에 고객 문제, 사용 결과, 가격 혜택을 순서대로 보여주세요. 옵션명도 고객 언어로 다시 정리해야 합니다.", "warning"));
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  if (msg) t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+/* ── Test flow ── */
+function startTest() {
+  currentQ = 0;
+  scores = new Array(GHOSTS.length).fill(0);
+  hide('screenIntro');
+  show('screenQuestion');
+  hide('screenResult');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[currentQ];
+  const pct = (currentQ / QUESTIONS.length) * 100;
+
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressCount').textContent = `${currentQ + 1} / ${QUESTIONS.length}`;
+  document.getElementById('qNumber').textContent = `Q${currentQ + 1}`;
+  document.getElementById('qText').textContent = q.q;
+
+  const optionsEl = document.getElementById('options');
+  optionsEl.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.textContent = opt.text;
+    btn.addEventListener('click', () => pickOption(i));
+    optionsEl.appendChild(btn);
+  });
+}
+
+function pickOption(idx) {
+  const opt = QUESTIONS[currentQ].opts[idx];
+  opt.s.forEach((v, i) => { scores[i] += v; });
+
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b => { b.disabled = true; });
+  btns[idx].classList.add('selected');
+
+  const card = document.getElementById('questionCard');
+
+  setTimeout(() => {
+    card.classList.add('leaving');
+    setTimeout(() => {
+      card.classList.remove('leaving');
+      currentQ++;
+      if (currentQ < QUESTIONS.length) {
+        card.classList.add('entering');
+        renderQuestion();
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            card.classList.remove('entering');
+          });
+        });
       } else {
-        items.push(makeRecommendation("전환율 유지", "전환율은 기본선을 넘었습니다. 잘 팔리는 옵션을 대표 이미지와 상품명에 반영해 검색 클릭률까지 확장하세요.", "good"));
+        showResult();
       }
+    }, 250);
+  }, 280);
+}
 
-      if (roas < 4) {
-        items.push(makeRecommendation("광고 구조 재정비", "성과 낮은 키워드는 중단하고, 구매 전환이 나온 검색어를 기준으로 소재와 입찰가를 분리하세요.", "warning"));
-      } else {
-        items.push(makeRecommendation("광고 확장 후보", "광고 효율이 양호합니다. 예산을 한 번에 키우기보다 전환 키워드별로 15-20%씩 증액하세요.", "good"));
-      }
+function showResult() {
+  const maxScore = Math.max(...scores);
+  /* collect ties, pick randomly among them */
+  const candidates = scores.reduce((acc, v, i) => (v === maxScore ? [...acc, i] : acc), []);
+  const idx = candidates[Math.floor(Math.random() * candidates.length)];
+  const ghost = GHOSTS[idx];
 
-      if (trustScore < 60) {
-        items.push(makeRecommendation("리뷰 신뢰도 강화", "배송 완료 2일 뒤 포토리뷰 혜택을 안내하고, 자주 묻는 불만은 상세페이지에서 먼저 답변하세요.", "warning"));
-      }
+  document.getElementById('progressFill').style.width = '100%';
 
-      items.push(makeRecommendation("카테고리 맞춤 액션", categoryAdvice[category]));
-      items.forEach((item) => recommendations.appendChild(item));
+  document.getElementById('resultEmoji').textContent    = ghost.emoji;
+  document.getElementById('resultSubtitle').textContent = ghost.subtitle;
+  const nameEl = document.getElementById('resultName');
+  nameEl.textContent  = ghost.name;
+  nameEl.style.color  = ghost.color;
 
-      if (score >= 82) {
-        priorityLabel.textContent = "확장 운영 우선";
-        summaryTitle.textContent = "기본기는 갖췄습니다. 효율 좋은 구간부터 확장하세요.";
-        summaryText.textContent = `예상 매출은 ${sales.toLocaleString("ko-KR")}원이며, 광고와 리뷰 지표가 확장 가능한 상태입니다.`;
-      } else if (score >= 65) {
-        priorityLabel.textContent = "전환 개선 우선";
-        summaryTitle.textContent = "방문자를 구매자로 바꾸는 화면 구성이 핵심입니다.";
-        summaryText.textContent = `현재 전환율은 ${formatPercent(conversion)}입니다. 상세페이지, 리뷰, 옵션명을 함께 손보면 효율 개선 폭이 큽니다.`;
-      } else {
-        priorityLabel.textContent = "기초 정비 우선";
-        summaryTitle.textContent = "광고보다 상품 기본 설득력을 먼저 정리하세요.";
-        summaryText.textContent = "검색 키워드, 대표 이미지, 리뷰 확보 루틴이 부족하면 광고비가 빠르게 소진됩니다.";
-      }
-    }
+  document.getElementById('resultDesc').innerHTML =
+    ghost.desc.replace(/\n/g, '<br>');
 
-    form.addEventListener("submit", (event) => {
-      event.preventDefault();
-      diagnose();
-    });
+  const traitsEl = document.getElementById('resultTraits');
+  traitsEl.innerHTML = '';
+  ghost.traits.forEach(t => {
+    const span = document.createElement('span');
+    span.className = 'trait';
+    span.textContent = `#${t}`;
+    span.style.borderColor = ghost.color + '55';
+    span.style.color = ghost.color;
+    traitsEl.appendChild(span);
+  });
 
-    resetButton.addEventListener("click", () => {
-      form.reset();
-      diagnose();
-    });
+  hide('screenQuestion');
+  show('screenResult');
+}
 
-    form.addEventListener("input", diagnose);
-    diagnose();
-  </script>
+function restartTest() {
+  hide('screenResult');
+  show('screenIntro');
+}
+
+function shareResult() {
+  const name  = document.getElementById('resultName').textContent;
+  const emoji = document.getElementById('resultEmoji').textContent;
+  const text  = `나는 ${emoji} ${name}!\n죽으면 나는 어떤 귀신이 될까? 테스트\n${location.href}`;
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => showToast('링크가 복사됐어요! 👻'))
+      .catch(() => fallbackCopy(text));
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); showToast('링크가 복사됐어요! 👻'); }
+  catch { showToast('직접 링크를 복사해 주세요.'); }
+  document.body.removeChild(ta);
+}
+
+/* ── Event listeners ── */
+document.getElementById('btnStart').addEventListener('click', startTest);
+document.getElementById('btnRetry').addEventListener('click', restartTest);
+document.getElementById('btnShare').addEventListener('click', shareResult);
+</script>
 </body>
 </html>
